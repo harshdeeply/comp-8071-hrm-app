@@ -1,17 +1,13 @@
-import axios from "axios";
+import axios from "../api/axios";
 
-export const API_BASE = "http://localhost:5268/api";
+export const getEmployees = () => axios.get(`/employees`);
+export const addEmployee = (employee) => axios.post(`/employees`, employee);
 
-export const getEmployees = () => axios.get(`${API_BASE}/employees`);
-export const addEmployee = (employee) =>
-  axios.post(`${API_BASE}/employees`, employee);
-
-export const getDepartments = () => axios.get(`${API_BASE}/departments`);
+export const getDepartments = () => axios.get(`/departments`);
 export const addDepartment = (department) =>
-  axios.post(`${API_BASE}/departments`, department);
-export const getDepartmentById = (id) =>
-  axios.get(`${API_BASE}/departments/${id}`);
+  axios.post(`/departments`, department);
+export const getDepartmentById = (id) => axios.get(`/departments/${id}`);
 
-export const getAttendances = () => axios.get(`${API_BASE}/attendances`);
+export const getAttendances = () => axios.get(`/attendances`);
 export const addAttendance = (attendance) =>
-  axios.post(`${API_BASE}/attendances`, attendance);
+  axios.post(`/attendances`, attendance);
