@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace HRMApp.Models;
 
 public class Employee
@@ -10,11 +12,11 @@ public class Employee
     public string Address { get; set; }
     public bool IsManager { get; set; }
     public int? ManagerId { get; set; }
-    public Employee Manager { get; set; }
-    public ICollection<Employee> ManagedEmployees { get; set; } = new List<Employee>();
-    public User User { get; set; }
-    public Department Department { get; set; }
-    public List<Timesheet> Timesheets { get; set; }
-    public List<LeaveRequest> LeaveRequests { get; set; }
-    public List<Payroll> Payroll { get; set; }
+    [JsonIgnore] public Employee? Manager { get; set; }
+    [JsonIgnore] public ICollection<Employee>? ManagedEmployees { get; set; } = new List<Employee>();
+    public User? User { get; set; }
+    public Department? Department { get; set; }
+    [JsonIgnore] public List<Timesheet>? Timesheets { get; set; }
+    [JsonIgnore] public List<LeaveRequest>? LeaveRequests { get; set; }
+    [JsonIgnore] public List<Payroll>? Payroll { get; set; }
 }

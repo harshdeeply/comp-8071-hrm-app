@@ -36,6 +36,30 @@ public class EmployeesController(HRMContext context) : ControllerBase
         return Ok(employee);
     }
 
+    // GET all employees
+    [Authorize(Roles = "Admin")]
+    [HttpGet]
+    public async Task<IActionResult> GetAllEmployees()
+    {
+        var employees = await context.Employees
+            .Include(e => e.Department)
+            .Include(e => e.User)
+            .Select(e => new
+                {
+                    e.User.UserId,
+                    e.User.FirstName,
+                    e.User.LastName,
+                    e.User.Username,
+                    e.User.Email,
+                    Role = e.User.Role.RoleName,
+                    e.Department.DepartmentName,
+                }
+            )
+            .ToListAsync();
+
+        return Ok(employees);
+    }
+
     // Update an employee
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateEmployee(int id, Employee employee)
@@ -64,5 +88,37 @@ public class EmployeesController(HRMContext context) : ControllerBase
     private bool EmployeeExists(int id)
     {
         return context.Employees.Any(e => e.EmployeeId == id);
+    }
+
+    // GET all employees
+    [Authorize(Roles = "Manager")]
+    [HttpGet("myteam")]
+    public async Task<IActionResult> GetMyTeam()
+    {
+        // Extract the manager's employee ID from the claims
+        var managerIdClaim = User.FindFirst("userId")?.Value;
+        if (string.IsNullOrEmpty(managerIdClaim) || !int.TryParse(managerIdClaim, out var managerId))
+        {
+            return Unauthorized(new { error = "Manager ID not found in token claims." });
+        }
+
+        var team = await context.Employees
+            .Where(e => e.ManagerId == managerId)
+            .Include(e => e.Department)
+            .Include(e => e.User)
+            .ThenInclude(u => u!.Role)
+            .Select(e => new
+            {
+                e.User!.UserId,
+                e.User.FirstName,
+                e.User.LastName,
+                e.User.Username,
+                e.User.Email,
+                Role = e.User.Role.RoleName,
+                e.Department!.DepartmentName,
+            })
+            .ToListAsync();
+
+        return Ok(team);
     }
 }

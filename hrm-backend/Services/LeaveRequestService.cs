@@ -12,13 +12,13 @@ public class LeaveRequestService(HRMContext context)
             .Include(lr => lr.Employee)
             .FirstOrDefaultAsync(lr => lr.LeaveRequestId == leaveRequestId);
 
-        if (leaveRequest == null || leaveRequest.Status != LeaveRequestStatus.Pending)
+        if (leaveRequest is not { Status: LeaveRequestStatus.Pending })
         {
-            return false; // No pending leave request found
+            return false; // No, pending leave request found
         }
 
         // Ensure the employee requesting leave is managed by the manager
-        if (leaveRequest.Employee.ManagerId != managerId)
+        if (leaveRequest.Employee?.ManagerId != managerId)
         {
             return false; // Manager is not authorized to approve this request
         }
@@ -36,13 +36,13 @@ public class LeaveRequestService(HRMContext context)
             .Include(lr => lr.Employee)
             .FirstOrDefaultAsync(lr => lr.LeaveRequestId == leaveRequestId);
 
-        if (leaveRequest == null || leaveRequest.Status != LeaveRequestStatus.Pending)
+        if (leaveRequest is not { Status: LeaveRequestStatus.Pending })
         {
-            return false; // No pending leave request found
+            return false; // No, pending leave request found
         }
 
         // Ensure the employee requesting leave is managed by the manager
-        if (leaveRequest.Employee.ManagerId != managerId)
+        if (leaveRequest.Employee?.ManagerId != managerId)
         {
             return false; // Manager is not authorized to deny this request
         }

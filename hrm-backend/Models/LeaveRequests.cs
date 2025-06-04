@@ -11,8 +11,7 @@ public class LeaveRequest
     public string Reason { get; set; }
     public LeaveRequestStatus Status { get; set; } // Approved, Denied, Pending
 
-    [JsonIgnore]
-    public Employee Employee { get; set; }
+    public Employee? Employee { get; set; }
 }
 
 public enum LeaveRequestStatus
