@@ -25,7 +25,7 @@ public class UsersController(HRMContext context) : ControllerBase
     }
 
     // Get a user by id
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<IActionResult> GetUser(int id)
     {
         var user = await context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.UserId == id);
@@ -36,7 +36,7 @@ public class UsersController(HRMContext context) : ControllerBase
     }
 
     // Update a user
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateUser(int id, User user)
     {
         if (id != user.UserId)
@@ -63,5 +63,27 @@ public class UsersController(HRMContext context) : ControllerBase
     private bool UserExists(int id)
     {
         return context.Users.Any(e => e.UserId == id);
+    }
+
+    // Get a user by id
+    [HttpGet("me")]
+    public async Task<IActionResult> Me()
+    {
+        var userIdClaim = User.FindFirst("userId")?.Value;
+
+        var user = await context.Users.Include(u => u.Role)
+            .FirstOrDefaultAsync(u => userIdClaim != null && u.UserId == int.Parse(userIdClaim));
+        if (user == null)
+            return NotFound();
+
+        return Ok(new
+        {
+            id = user.UserId,
+            username = user.Username,
+            firstName = user.FirstName,
+            lastName = user.LastName,
+            email = user.Email,
+            role = user.Role.RoleName,
+        });
     }
 }

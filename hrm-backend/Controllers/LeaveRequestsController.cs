@@ -87,4 +87,23 @@ public class LeaveRequestsController(HRMContext context, LeaveRequestService lea
         // Logic to extract manager's ID from the current user claims
         return 1; // Placeholder for actual logic
     }
+
+    [HttpGet("my")]
+    public async Task<ActionResult<IEnumerable<LeaveRequest>>> GetMyLeaveRequests()
+    {
+        // Extract employeeId from the user's claims
+        var employeeIdClaim = User.FindFirst("userId")?.Value;
+
+        if (string.IsNullOrEmpty(employeeIdClaim) || !int.TryParse(employeeIdClaim, out var employeeId))
+        {
+            return Unauthorized("Employee ID not found in token claims");
+        }
+
+        var leaveRequests = await context.LeaveRequests
+            .Where(lr => lr.EmployeeId == employeeId)
+            .ToListAsync();
+
+        // Always return 200 OK, even if the list is empty
+        return Ok(leaveRequests);
+    }
 }

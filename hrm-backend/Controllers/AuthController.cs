@@ -28,8 +28,18 @@ public class AuthController(AuthService authService) : ControllerBase
     {
         var user = authService.Authenticate(loginDTO.Username, loginDTO.Password);
         if (user == null) return Unauthorized("Invalid credentials");
+        var userData =
+            new
+            {
+                id = user.UserId,
+                username = user.Username,
+                firstName = user.FirstName,
+                lastName = user.LastName,
+                email = user.Email,
+                role = user.Role.RoleName,
+            };
 
         var token = authService.GenerateJwtToken(user);
-        return Ok(new { Token = token });
+        return Ok(new { Token = token, User = userData });
     }
 }

@@ -31,6 +31,7 @@ public class AuthService
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Email),
             new Claim(ClaimTypes.Name, user.Username),
+            new Claim("userId", user.UserId.ToString()),
             new Claim(ClaimTypes.Role, user.Role.RoleName) // Reference RoleName from Role entity
         };
 
