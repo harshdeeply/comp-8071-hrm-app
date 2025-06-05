@@ -22,7 +22,6 @@ import EmployeeDashboard from "./EmployeeDashboard";
 import ManagerDashboard from "./ManagerDashboard";
 import AdminDashboard from "./AdminDashboard";
 import ProfilePage from "../profile/Profile";
-import TeamLeaveRequests from "./TeamLeaveRequests";
 import ManageTeam from "./ManageTeam";
 import Reports from "./Reports";
 
