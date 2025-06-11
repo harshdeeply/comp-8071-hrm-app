@@ -20,3 +20,10 @@ public enum LeaveRequestStatus
     Approved = 1,
     Denied = 2
 }
+
+public class LeaveRequestSummary
+{
+    public string DepartmentName { get; set; }
+    public string Status { get; set; }
+    public int RequestCount { get; set; }
+}

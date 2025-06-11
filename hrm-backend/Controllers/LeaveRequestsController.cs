@@ -3,6 +3,7 @@ using HRMApp.Models;
 using HRMApp.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace HRMApp.Controllers;
@@ -158,5 +159,50 @@ public class LeaveRequestsController(HRMContext context, LeaveRequestService lea
             .ToListAsync();
 
         return Ok(leaveRequests);
+    }
+
+    [HttpGet("summary")]
+    [Authorize(Roles = "Manager,Admin")]
+    public async Task<ActionResult<IEnumerable<LeaveRequestSummary>>> GetLeaveRequestSummary()
+    {
+        // Get manager's user ID from claims
+        var userIdClaim = User.FindFirst("userId")?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+        {
+            return Unauthorized("Manager user ID not found in token claims");
+        }
+
+        // Find manager employee record
+        var manager = await context.Employees.FirstOrDefaultAsync(e => e.UserId == userId);
+        if (manager == null)
+        {
+            return Unauthorized("Manager employee record not found");
+        }
+
+        // Get IDs of employees managed by this manager
+        var employeeIds = await context.Employees
+            .Where(e => e.ManagerId == manager.EmployeeId)
+            .Select(e => e.EmployeeId)
+            .ToListAsync();
+
+        // Group and summarize the leave requests by Department and Status
+        var summary = await context.LeaveRequests
+            // .Where(lr => employeeIds.Contains(lr.EmployeeId))
+            .Include(lr => lr.Employee)
+            .ThenInclude(emp => emp.Department)
+            .GroupBy(lr => new
+            {
+                Department = lr.Employee.Department.DepartmentName,
+                lr.Status
+            })
+            .Select(g => new LeaveRequestSummary
+            {
+                DepartmentName = g.Key.Department,
+                Status = g.Key.Status.ToString(),
+                RequestCount = g.Count()
+            })
+            .ToListAsync();
+
+        return Ok(summary);
     }
 }
